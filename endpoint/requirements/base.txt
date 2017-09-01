@@ -4,4 +4,4 @@ markdown==2.6.9
 django-filter==1.0.4
 djangorestframework-jwt==1.11.0
 django-cors-headers==2.1.0
- djangorestframework-jsonapi==2.2.0
+djangorestframework-jsonapi==2.2.0

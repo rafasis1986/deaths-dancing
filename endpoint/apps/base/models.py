@@ -15,4 +15,4 @@ class Client(AbstractUser, models.Model):
         db_table = 'base_client'
 
     class JSONAPIMeta:
-        resource_name = "client"
+        resource_name = 'client'

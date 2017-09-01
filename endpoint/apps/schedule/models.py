@@ -17,4 +17,4 @@ class Booking(models.Model):
         unique_together = ('date', 'hour')
 
     class JSONAPIMeta:
-        resource_name = "booking"
+        resource_name = 'booking'
