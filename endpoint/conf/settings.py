@@ -12,10 +12,16 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 import datetime
+import milieu
+import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+try:
+    M = milieu.init(path=os.path.join(BASE_DIR, 'conf.json'))
+except FileNotFoundError:
+    raise FileNotFoundError('I do not find the conf.json file')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -24,13 +30,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '*oyw40a%^u*)b1h9i)010qj-0h0b1rd)c&o2ipg18--!6da)*a'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = M.DEBUG
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [M.CLIENT_URL, M.AUTH0_REDIRECT_URI]
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -42,6 +46,7 @@ INSTALLED_APPS = [
     'apps.schedule',
     'rest_framework',
     'corsheaders',
+    'apps.auth0',
 ]
 
 REST_FRAMEWORK = {
@@ -74,6 +79,17 @@ JSON_API_PLURALIZE_TYPES = True
 JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
     'JWT_ALLOW_REFRESH': True,
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+    'JWT_ENCODE_HANDLER': 'rest_framework_jwt.utils.jwt_encode_handler',
+    'JWT_DECODE_HANDLER': 'rest_framework_jwt.utils.jwt_decode_handler',
+    'JWT_PAYLOAD_GET_USER_ID_HANDLER': 'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
+    'JWT_PAYLOAD_HANDLER': 'rest_framework_jwt.utils.jwt_payload_handler',
+    'JWT_SECRET_KEY': SECRET_KEY,
+    'JWT_ALGORITHM': 'HS256',
+    'JWT_VERIFY': True,
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_LEEWAY': 10,
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7)
 }
 
 MIDDLEWARE = [
@@ -87,21 +103,25 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ORIGIN_WHITELIST = ('localhost:10000',)
+CORS_ORIGIN_WHITELIST = (M.CLIENT_URL,)
 
 ROOT_URLCONF = 'conf.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'OPTIONS': {
+            'debug': DEBUG,
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.static',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
             ],
         },
     },
@@ -114,12 +134,7 @@ AUTH_USER_MODEL = 'base.Client'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+DATABASES = {'default': dj_database_url.config(default=M.DATABASE_URL)}
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -158,4 +173,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+AUTH0_CALLBACK_URL = M.AUTH0_CALLBACK_URL
+AUTH0_CLIENT_ID = M.AUTH0_CLIENT_ID
+AUTH0_CLIENT_SECRET = M.AUTH0_CLIENT_SECRET
+AUTH0_DOMAIN = M.AUTH0_DOMAIN
+AUTH0_GRANT_TYPE = M.AUTH0_GRANT_TYPE
+AUTH0_REDIRECT_URI = M.AUTH0_REDIRECT_URI
+
+CLIENT_AUTH_RESPONSE_URL = M.CLIENT_AUTH_RESPONSE_URL

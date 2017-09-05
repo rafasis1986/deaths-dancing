@@ -1,0 +1,13 @@
+{
+    "DEBUG": true,
+    "DJANGO_ENV": "dev",
+    "CLIENT_URL": "http://localhost:8080",
+    "DATABASE_URL": "sqlite://///{ ABSOLUE_PATH }/endpoint/deaths.db",
+    "AUTH0_CALLBACK_URL": "http://localhost:8000/v1/callback",
+    "AUTH0_CLIENT_ID": "",
+    "AUTH0_CLIENT_SECRET": "",
+    "AUTH0_DOMAIN": "",
+    "AUTH0_GRANT_TYPE": "authorization_code",
+    "AUTH0_REDIRECT_URI": "http://localhost:8000",
+    "CLIENT_AUTH_RESPONSE_URL": "http://localhost:8080/"
+}
