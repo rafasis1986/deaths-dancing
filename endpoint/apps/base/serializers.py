@@ -12,4 +12,4 @@ class ClientSerializer(serializers.ModelSerializer):
 class MeSerializer(ClientSerializer):
 
     class Meta(ClientSerializer.Meta):
-        fields = ('id', 'username', 'email', 'full_name')
+        fields = ('id', 'username', 'email', 'full_name', 'picture')

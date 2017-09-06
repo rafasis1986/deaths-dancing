@@ -32,7 +32,7 @@ SECRET_KEY = '*oyw40a%^u*)b1h9i)010qj-0h0b1rd)c&o2ipg18--!6da)*a'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = M.DEBUG
 
-ALLOWED_HOSTS = [M.CLIENT_URL, M.AUTH0_REDIRECT_URI]
+ALLOWED_HOSTS = ['*',]
 
 # Application definition
 INSTALLED_APPS = [
@@ -72,8 +72,8 @@ REST_FRAMEWORK = {
     'DEFAULT_METADATA_CLASS': 'rest_framework_json_api.metadata.JSONAPIMetadata',
 }
 
-JSON_API_FORMAT_KEYS = 'dasherize'
-JSON_API_FORMAT_TYPES = 'dasherize'
+JSON_API_FORMAT_KEYS = 'underscore'
+JSON_API_FORMAT_TYPES = 'underscore'
 JSON_API_PLURALIZE_TYPES = True
 
 JWT_AUTH = {
@@ -93,9 +93,10 @@ JWT_AUTH = {
 }
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'apps.base.middleware.HeaderMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -103,7 +104,21 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ORIGIN_WHITELIST = (M.CLIENT_URL,)
+
+CORS_ALLOW_HEADERS = (
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'access-control-allow-headers',
+)
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'conf.urls'
 
