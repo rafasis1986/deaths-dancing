@@ -126,6 +126,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
         'OPTIONS': {
             'debug': DEBUG,
             'context_processors': [
@@ -145,7 +146,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'conf.wsgi.application'
 
 AUTH_USER_MODEL = 'base.Client'
-
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
@@ -188,10 +188,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 AUTH0_CALLBACK_URL = M.AUTH0_CALLBACK_URL
 AUTH0_CLIENT_ID = M.AUTH0_CLIENT_ID
