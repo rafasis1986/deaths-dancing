@@ -1,0 +1,25 @@
+version: '3.2'
+
+services:
+    db:
+        image: mysql:8.0.2
+        env_file: 
+            - compose.env
+        volumes:
+            - ./compose/data/db:/var/lib/mysql
+    django:
+        build:
+            context: .
+            dockerfile: ./compose/local/django/Dockerfile
+        depends_on:
+            - db
+        ports:
+            - "8000:8000"
+        volumes:
+            - ./endpoint:/app
+        command: sh /start.sh
+    adminer:
+        image: adminer:4.3.1
+        ports:
+            - "8080:8080"
+    

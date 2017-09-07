@@ -163,3 +163,4 @@ local.properties
 
 *.db
 *conf.json
+*/data/
