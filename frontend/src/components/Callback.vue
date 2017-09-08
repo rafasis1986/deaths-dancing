@@ -10,7 +10,6 @@ export default {
   name: 'callback',
   props: ['auth'],
   created () {
-    console.log('callback In')
     this.auth.handleAuthentication()
     this.$router.push('/')
     return {}

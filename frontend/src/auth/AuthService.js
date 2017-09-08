@@ -55,7 +55,6 @@ export default class AuthService {
     }
 
     if (authResult && authResult.accessToken) {
-      console.log('pre')
       this.setSession(authResult)
       return this.setUser()
     } else {
@@ -82,7 +81,7 @@ export default class AuthService {
     this.userProfile = null
     store.commit('CLEAR_ALL_DATA')
     this.authNotifier.emit('authChange', false)
-    this.router.replace('')
+    this.router.pop('profile')
   }
 
   isAuthenticated () {
