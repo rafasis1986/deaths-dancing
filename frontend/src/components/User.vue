@@ -1,6 +1,8 @@
 <template>
   <div class="panel panel-default profile-area">
-    <div class="panel-heading"><h3>User</h3></div>
+    <div class="panel-heading  header-center">
+      <h3>User Profile</h3>
+    </div>
     <div class="panel-body">
       <div class="container">
         <div class="row">

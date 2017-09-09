@@ -4,6 +4,7 @@ import VueResource from 'vue-resource'
 import Home from '@/components/Home'
 import Profile from '@/components/User'
 import Callback from '@/components/Callback'
+import Schedule from '@/components/Schedule'
 import AuthService from './../auth/AuthService'
 
 Vue.use(Router)
@@ -36,6 +37,11 @@ export default new Router({
           next()
         }
       }
+    },
+    {
+      path: '/schedule',
+      name: 'Schedule',
+      component: Schedule
     }
   ]
 })

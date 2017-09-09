@@ -38,7 +38,7 @@ export default class AuthService {
     ],
     theme: {
       logo: './static/deaths-dancing-ico.png',
-      primaryColor: 'red'
+      primaryColor: '#97bcdc'
     }
   })
 

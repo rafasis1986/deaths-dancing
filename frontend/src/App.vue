@@ -1,35 +1,50 @@
 <template>
   <div>
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
+    <nav class="navbar navbar-inverse navbar-inverse-fixed-top navbar-home fixedmenu">
+      <div class="container">
         <div class="navbar-header">
-          <a class="navbar-brand" href="#">Deaths Client</a>
-
-          <router-link :to="'/'"
-            class="btn btn-primary btn-margin">
-              Home
-          </router-link>
-
-          <router-link :to="'profile'"
-            class="btn btn-primary btn-margin"
-            v-if="authenticated">
-              Profile
-          </router-link>
-
-          <button
-            class="btn btn-primary btn-margin"
-            v-if="!authenticated"
-            @click="login()">
-              Log In
-          </button>
-
-          <button
-            class="btn btn-primary btn-margin"
-            v-if="authenticated"
-            @click="logout()">
-              Log Out
-          </button>
-
+          <a class="navbar-brand img-responsive" href="/" style="padding:0px;">
+            <img src="./assets/img/deaths-dancing-ico.png"  style="height:100%;">
+          </a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+              <a>
+                <router-link :to="'/'">
+                    Home
+                </router-link>
+              </a>
+            </li>
+            <li>
+              <a>
+                <router-link :to="'profile'"
+                  v-if="authenticated">
+                    Profile
+                </router-link>
+              </a>
+            </li>
+            <li>
+              <a>
+                <router-link :to="'schedule'"
+                  v-if="authenticated">
+                    Schedule
+                </router-link>
+              </a>
+            </li>
+            <li>
+              <a v-if="!authenticated"
+                @click="login()">
+                  Log In
+              </a>
+            </li>
+            <li>
+              <a v-if="authenticated"
+                @click="logout()">
+                  Log Out
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
     </nav>
@@ -68,10 +83,4 @@ export default {
 }
 </script>
 
-<style>
-@import '../node_modules/bootstrap/dist/css/bootstrap.css';
 
-.btn-margin {
-  margin-top: 7px
-}
-</style>

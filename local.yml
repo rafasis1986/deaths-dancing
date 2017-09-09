@@ -7,6 +7,8 @@ services:
             - compose.env
         volumes:
             - ./compose/data/db:/var/lib/mysql
+        ports:
+            - "3306:3306"
     django:
         build:
             context: .
@@ -22,12 +24,3 @@ services:
         image: adminer:4.3.1
         ports:
             - "8081:8080"
-    vue:
-        build:
-            context: .
-            dockerfile: ./compose/local/vue/Dockerfile
-        volumes:
-            - ./frontend:/webapp
-        ports:
-            - "8080:8080"
-    
