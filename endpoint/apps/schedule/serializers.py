@@ -5,4 +5,10 @@ from apps.schedule.models import Booking
 class BookingSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Booking
-        fields = ('id', 'client', 'created_ts', 'date', 'hour',)
+        fields = ('id', 'client', 'created_ts', 'time',)
+
+
+class BookingCreateSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Booking
+        fields = ('time',)
