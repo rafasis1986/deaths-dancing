@@ -76,7 +76,6 @@ export default class AuthService {
   logout () {
     // Clear access token and ID token from local storage
     localStorage.removeItem('access_token')
-    localStorage.removeItem('prefix_token')
     localStorage.removeItem('expires_at')
     this.userProfile = null
     store.commit('CLEAR_ALL_DATA')
@@ -91,18 +90,20 @@ export default class AuthService {
     return new Date().getTime() < expiresAt
   }
 
-  getAccessToken () {
-    const accessToken = localStorage.getItem('access_token')
-    const prefixToken = localStorage.getItem('prefix_token')
+  setAccessToken () {
+    let accessToken = localStorage.getItem('access_token')
+    let prefixToken = localStorage.getItem('prefix_token')
     if (!accessToken) {
       throw new Error('No access token found')
     }
-    return prefixToken + ' ' + accessToken
+    localStorage.removeItem('prefix_token')
+    localStorage.setItem('access_token', prefixToken + ' ' + accessToken)
   }
 
   setUser () {
-    Vue.http.headers.common['Authorization'] = this.getAccessToken()
-    Vue.http.get(USER_INFO_URL, {headers: {'Authorization': this.getAccessToken()}})
+    this.setAccessToken()
+    Vue.http.headers.common['Authorization'] = localStorage.getItem('access_token')
+    Vue.http.get(USER_INFO_URL)
       .then((result) => {
         let user = {}
         user.id = result.body.data.id

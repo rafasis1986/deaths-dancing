@@ -2,24 +2,28 @@
   <section class="container">
     <div v-if="authenticated" class="panel panel-default profile-area">
       <div class="panel-heading header-center">
-        <h3>Schedule</h3>
+        <h3 class="text-center">Schedule</h3>
       </div>
-      <div class="panel-body">
+      <div v-if="!asyncevent" class="panel-body">
         <div class="row">
-          <div class="col-md-6 col-md-offset-3">
-            <div class="form-group">
-              <label>Select booking time</label>
+          <div class="col-md-10 col-md-offset-1">
+            <div class="form-group col-md-6">
               <div class="input-group">
                 <date-picker :config="configs.timePicker" v-model="form.time" :wrap="true"
-                             placeholder="Time" ></date-picker>
+                             placeholder="Select booking time"></date-picker>
                 <div class="input-group-addon">
                   <span class="glyphicon glyphicon-time"></span>
                 </div>
               </div>
             </div>
-            <hr/>
+            <div v-if="enabled" class="col-md-2 col-md-offset-4">
+              <button type="button" class="btn btn-primary">
+                Book <span class="glyphicon glyphicon-ok-circle"></span>
+              </button>
+            </div>
           </div>
           <div class="col-md-12">
+            <hr/>
             <vue-event-calendar :events="cEvents" @day-changed="handleDayChanged"
               @month-changed="handleMonthChanged">
                 <div v-if="!seen">
@@ -33,6 +37,9 @@
           </div>
         </div>
       </div>
+      <div v-if="asyncevent" class="col-md-12 text-center">
+        <img src="../assets/img/loading.svg" alt="loading"/>
+      </div>
     </div>
     <h4 v-if="!authenticated">
       You are not logged in! Please <a @click="auth.login()">Log In</a> to continue.
@@ -42,28 +49,12 @@
 
 <script>
 import jQuery from 'jquery'
-const moment = require('moment')
+// import ApiService from '../api/ApiService'
+// import axios from 'axios'
+import { API } from '../api/ApiService'
 
-let today = new Date()
-let demoEvents = [
-  {
-    date: `${today.getFullYear()}/${today.getMonth() + 1}/15`,
-    title: '12:00',
-    desc: 'dancing with Test'
-  }, {
-    date: `${today.getFullYear()}/${today.getMonth() + 1}/15`,
-    title: '13:00',
-    desc: 'dancing with test 2'
-  }, {
-    date: `${today.getFullYear()}/${today.getMonth() + 2}/15`,
-    title: '16:00',
-    desc: 'dancing with other guy'
-  }, {
-    date: `${today.getFullYear()}/${today.getMonth() + 1}/05`,
-    title: '09:00',
-    desc: 'dancing'
-  }
-]
+// const api = new ApiService()
+const moment = require('moment')
 
 export default {
   name: 'schedule',
@@ -84,27 +75,36 @@ export default {
           useCurrent: false
         }
       },
-      cEvents: demoEvents,
-      seen: false
+      cEvents: [],
+      seen: false,
+      enabled: false,
+      asyncevent: false,
+      testValue: null
     }
   },
   methods: {
     handleDayChanged (data) {
+      let aux = jQuery('h2.date')[0]
       if (data.events.length > 0) {
         this.seen = true
       } else {
         this.seen = false
       }
-      var aux = jQuery('h2.date')[0]
       if (aux) {
-        var auxDate = new Date(data.date)
+        let auxDate = new Date(data.date)
         aux.innerHTML = moment(auxDate).format('DD/MM/YYYY')
+        if (auxDate.getDay() !== 0 && auxDate.getDay() !== 6) {
+          this.enabled = true
+        } else {
+          this.enabled = false
+        }
       }
       console.log('date-changed', data)
     },
     handleMonthChanged (data) {
+      let aux = jQuery('h2.date')[0]
       this.seen = false
-      var aux = jQuery('h2.date')[0]
+      this.enabled = false
       if (aux) {
         aux.innerHTML = 'Month: ' + data
       }
@@ -112,12 +112,39 @@ export default {
     }
   },
   mounted () {
-    var aux = jQuery('div.title')[0]
-    var aux2 = jQuery('h2.date')[0]
+    let aux = jQuery('div.title')[0]
+    let aux2 = jQuery('h2.date')[0]
     if (aux && aux2) {
       aux2.innerHTML = 'Month: ' + aux.innerHTML
     }
-    console.log(aux)
+  },
+  created () {
+    API.get('schedule/bookings/')
+      .then((response) => {
+        let result = response.data.data.map((data) => {
+          let getBookingClient = new Promise((resolve, reject) => {
+            let iterClients = response.data.included[Symbol.iterator]()
+            let current = iterClients.next()
+            while (current.value) {
+              if (current.value.id === data.relationships.client.data.id) {
+                resolve(current.value.attributes.email)
+              }
+              current = iterClients.next()
+            }
+          })
+          let event = {
+            date: moment(data.attributes.time).format('YYYY/MM/DD'),
+            title: moment(data.attributes.time).format('h:mm a'),
+            desc: getBookingClient._v
+          }
+          return event
+        })
+        this.cEvents = result
+      })
+      .catch((e) => {
+        console.log('error!!!!')
+        console.log(e)
+      })
   }
 }
 </script>

@@ -9,6 +9,10 @@ let syncedData = {
     email: null,
     picture: null,
     id: null
+  },
+  auth_header: {
+    token: null,
+    expires_at: null
   }
 }
 
