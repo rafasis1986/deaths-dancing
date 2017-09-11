@@ -4,16 +4,19 @@ from apps.schedule.models import Booking
 from rest_framework.response import Response
 from filters.mixins import FiltersMixin
 from apps.schedule.validations import bookings_query_schema
+from rest_framework.views import APIView
+from datetime import datetime
+from rest_framework.settings import api_settings
 
 
 class BookingViewSet(FiltersMixin, viewsets.ModelViewSet):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
-    ordering = ('time',)
+    ordering = ('date', 'hour',)
     filter_validation_schema = bookings_query_schema
     filter_mappings = {
-        'date_gt': 'time__gte',
-        'date_lt': 'time__lt',
+        'date_gt': 'date__gte',
+        'date_lt': 'date__lt',
     }
 
     def get_queryset(self):
@@ -30,9 +33,25 @@ class BookingViewSet(FiltersMixin, viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         booking = Booking()
         booking.client = request.user
-        booking.time = request.data.get('time')
+        booking.date = request.data.get('date')
+        booking.hour = request.data.get('hour')
         booking.save()
         serializer = self.get_serializer(booking)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-    # return viewsets.ModelViewSet.create(self, request, *args, **kwargs)
+
+
+class HourlyAvaliables(APIView):
+    allowed_methods = ['get']
+
+    def get(self, request, *args, **kwargs):
+        availability_list = []
+        if self.request.query_params.get('date'):
+            date_param = self.request.query_params.get('date')
+            date = datetime.strptime(date_param, '%Y-%m-%d')
+            busy = Booking.objects.filter(date=date).values_list('hour')
+            busy_hours = [x[0] for x in busy]
+            for i in range(9, 16):
+                if i not in busy_hours:
+                    availability_list.append(i)
+        return Response({'availability': availability_list}, status=status.HTTP_200_OK)

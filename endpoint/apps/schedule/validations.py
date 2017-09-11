@@ -12,3 +12,8 @@ bookings_query_schema = base_query_params_schema.extend(
         'date_lt': DatetimeWithTZ(),
         'date_gt': DatetimeWithTZ(),
     })
+
+hours_query_schema = base_query_params_schema.extend(
+    {
+        'date': DatetimeWithTZ()
+    })

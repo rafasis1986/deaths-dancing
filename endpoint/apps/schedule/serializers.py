@@ -10,7 +10,7 @@ class BookingSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Booking
-        fields = ('id', 'client', 'created_ts', 'time',)
+        fields = ('id', 'client', 'created_ts', 'date', 'hour')
 
     class JSONAPIMeta:
         included_resources = ['client']
@@ -19,4 +19,4 @@ class BookingSerializer(serializers.HyperlinkedModelSerializer):
 class BookingCreateSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Booking
-        fields = ('time',)
+        fields = ('date', 'hour',)
