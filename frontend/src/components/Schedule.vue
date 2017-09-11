@@ -51,7 +51,8 @@ const moment = require('moment')
 const API = axios.create({
   baseURL: BASE_API_URL,
   headers: {
-    Authorization: localStorage.getItem('access_token')
+    'Authorization': localStorage.getItem('access_token'),
+    'Content-Type': 'application/vnd.api+json'
   }
 })
 
@@ -71,7 +72,27 @@ export default {
   },
   methods: {
     submitBookDate () {
-      console.log(this.hourSelected)
+      let aux = jQuery('h2.date')[0]
+      if (aux) {
+        let body = {
+          'data': {
+            'type': 'booking',
+            'attributes': {
+              'date': moment(aux.innerHTML, 'DD/MM/YYYY').format('YYYY-MM-DD'),
+              'hour': this.hourSelected
+            }
+          }
+        }
+        API.post('schedule/bookings/', body)
+          .then((response) => {
+            this.options = []
+            this.handleChangeCurday
+          })
+          .catch((e) => {
+            console.log('error!')
+            console.log(e)
+          })
+      }
     },
     handleDayChanged (data) {
       let aux = jQuery('h2.date')[0]
