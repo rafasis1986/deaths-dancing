@@ -8,27 +8,21 @@
         <div class="row">
           <div class="col-md-10 col-md-offset-1">
             <div class="form-group col-md-6">
-              <div class="input-group">
-                <date-picker :config="configs.timePicker" v-model="form.time" :wrap="true"
-                             placeholder="Select booking time"></date-picker>
-                <div class="input-group-addon">
-                  <span class="glyphicon glyphicon-time"></span>
-                </div>
-              </div>
+              <multiselect v-model="hourSelected" :options="options"></multiselect>
             </div>
             <div v-if="enabled" class="col-md-2 col-md-offset-4">
-              <button type="button" class="btn btn-primary">
+              <button type="button" class="btn btn-primary" v-on:click="submitBookDate">
                 Book <span class="glyphicon glyphicon-ok-circle"></span>
               </button>
             </div>
           </div>
           <div class="col-md-12">
             <hr/>
-            <vue-event-calendar :events="cEvents" @day-changed="handleDayChanged"
+            <vue-event-calendar :events="currentEvents" @day-changed="handleDayChanged"
               @month-changed="handleMonthChanged">
                 <div v-if="!seen">
                   <template scope="props">
-                    <div v-for="(event, index) in cEvents" class="event-item">
+                    <div v-for="(event, index) in currentEvents" class="event-item">
                       {{event}}
                     </div>
                   </template>
@@ -50,6 +44,7 @@
 <script>
 import jQuery from 'jquery'
 import axios from 'axios'
+import Multiselect from 'vue-multiselect'
 
 const BASE_API_URL = 'http://localhost:8000/v1/'
 const moment = require('moment')
@@ -63,32 +58,24 @@ const API = axios.create({
 export default {
   name: 'schedule',
   props: ['authenticated', 'showEvents'],
+  components: { Multiselect },
   data () {
     return {
-      form: {
-        date: new Date(),
-        time: null
-      },
-      configs: {
-        basic: {
-          format: 'DD/MM/YYYY',
-          useCurrent: true
-        },
-        timePicker: {
-          format: 'HH:mm',
-          useCurrent: false
-        }
-      },
-      cEvents: [],
+      hourSelected: null,
+      options: [],
+      currentEvents: [],
       seen: false,
       enabled: false,
-      asyncevent: false,
-      testValue: null
+      asyncevent: false
     }
   },
   methods: {
+    submitBookDate () {
+      console.log(this.hourSelected)
+    },
     handleDayChanged (data) {
       let aux = jQuery('h2.date')[0]
+      let now = new Date()
       if (data.events.length > 0) {
         this.seen = true
       } else {
@@ -97,10 +84,20 @@ export default {
       if (aux) {
         let auxDate = new Date(data.date)
         aux.innerHTML = moment(auxDate).format('DD/MM/YYYY')
-        if (auxDate.getDay() !== 0 && auxDate.getDay() !== 6) {
-          this.enabled = true
-        } else {
+        if (auxDate < now) {
           this.enabled = false
+        } else if (auxDate.getDay() === 0 || auxDate.getDay() === 6) {
+          this.enabled = false
+        } else {
+          this.enabled = true
+        }
+        if (this.enabled) {
+          API.get('avaliable/hours/?date=' + moment(auxDate).format('DD/MM/YYYY'))
+            .then((response) => {
+              this.options = response.data.data.availability
+            })
+        } else {
+          this.options = []
         }
       }
     },
@@ -130,13 +127,14 @@ export default {
               }
             })
             let event = {
-              date: moment(data.attributes.time).format('YYYY/MM/DD'),
-              title: moment(data.attributes.time).format('h:mm a'),
+              date: moment(data.attributes.date).format('YYYY/MM/DD'),
+              title: data.attributes.hour + ':00',
               desc: getBookingClient._v
             }
             return event
           })
-          this.cEvents = result
+          this.responseData = null
+          this.currentEvents = result
         })
         .catch((e) => {
           console.log('error!')
@@ -173,13 +171,14 @@ export default {
             }
           })
           let event = {
-            date: moment(data.attributes.time).format('YYYY/MM/DD'),
-            title: moment(data.attributes.time).format('h:mm a'),
+            date: moment(data.attributes.date).format('YYYY/MM/DD'),
+            title: data.attributes.hour + ':00',
             desc: getBookingClient._v
           }
           return event
         })
-        this.cEvents = result
+        this.responseData = null
+        this.currentEvents = result
         this.asyncevent = false
       })
       .catch((e) => {
@@ -189,3 +188,5 @@ export default {
   }
 }
 </script>
+
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
