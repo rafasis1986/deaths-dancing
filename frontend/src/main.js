@@ -3,7 +3,6 @@
 import Vue from 'vue'
 import VueCookie from 'vue-cookie'
 import vueEventCalendar from 'vue-event-calendar'
-import datePicker from 'vue-bootstrap-datetimepicker'
 
 import App from './App'
 import router from './router'
@@ -11,9 +10,7 @@ import store from './store'
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'vue-event-calendar/dist/style.css'
-import 'eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css'
 
-Vue.use(datePicker)
 Vue.config.productionTip = false
 Vue.use(VueCookie)
 Vue.use(vueEventCalendar,

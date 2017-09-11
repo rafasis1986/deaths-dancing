@@ -86,7 +86,6 @@ export default {
         API.post('schedule/bookings/', body)
           .then((response) => {
             this.options = []
-            this.handleChangeCurday
           })
           .catch((e) => {
             console.log('error!')
