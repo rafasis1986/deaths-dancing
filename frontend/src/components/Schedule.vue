@@ -6,9 +6,24 @@
       </div>
       <div v-if="!asyncevent" class="panel-body">
         <div class="row">
+          <!--div v-if='alertSuccess' class="alert alert-success alert-dismissible" role="alert">
+            <button v-on:click="dismissSuccess" type="button">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>Well done! </strong>{{ successMsg }}
+          </div>
+          <div v-if='alertWarning' class="alert alert-warning alert-dismissible" role="alert">
+            <button v-on:click='dismissWarning' type="button" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>Warning! </strong>{{ warningMsg }}
+          </div>
+          -->
           <div class="col-md-10 col-md-offset-1">
-            <div class="form-group col-md-6">
-              <multiselect v-model="hourSelected" :options="options"></multiselect>
+            <div class="form-group col-md-6">  
+              <label class="typo__label">Hours list</label>
+              <multiselect v-model="hourSelected" deselect-label="Can't remove this value" track-by="name" label="name" 
+                placeholder="  Select one hour" :options="options" :searchable="false" :allow-empty="false"></multiselect>
             </div>
             <div v-if="enabled" class="col-md-2 col-md-offset-4">
               <button type="button" class="btn btn-primary" v-on:click="submitBookDate">
@@ -45,6 +60,7 @@
 import jQuery from 'jquery'
 import axios from 'axios'
 import Multiselect from 'vue-multiselect'
+import VueNotifications from 'vue-notifications'
 
 const BASE_API_URL = 'http://localhost:8000/v1/'
 const moment = require('moment')
@@ -72,6 +88,7 @@ export default {
   },
   methods: {
     submitBookDate () {
+      console.log(this)
       let aux = jQuery('h2.date')[0]
       if (aux) {
         let body = {
@@ -79,7 +96,7 @@ export default {
             'type': 'booking',
             'attributes': {
               'date': moment(aux.innerHTML, 'DD/MM/YYYY').format('YYYY-MM-DD'),
-              'hour': this.hourSelected
+              'hour': this.hourSelected.value
             }
           }
         }
@@ -88,10 +105,13 @@ export default {
           {'headers': this.headers})
           .then((response) => {
             this.options = []
+            this.hourSelected = null
+            let msg = 'Your booking was appoiment.'
+            VueNotifications.success({message: msg})
           })
           .catch((e) => {
-            console.log('error!')
-            console.log(e)
+            this.hourSelected = null
+            VueNotifications.error({message: e.response.data.errors[0].detail})
           })
       }
     },
@@ -117,7 +137,16 @@ export default {
           API.get('avaliable/hours/?date=' + moment(auxDate).format('DD/MM/YYYY'),
             {'headers': this.headers})
             .then((response) => {
-              this.options = response.data.data.availability
+              this.options = response.data.data.availability.map(
+                (avaliable) => {
+                  return {
+                    name: avaliable + ':00',
+                    value: avaliable
+                  }
+                })
+              if (this.options.length === 0) {
+                this.enabled = false
+              }
             })
         } else {
           this.options = []
@@ -135,12 +164,13 @@ export default {
       let auxDate = data.split('/')
       let dateFrom = moment(new Date(auxDate[1], auxDate[0] - 1, 1)).format('YYYY-MM-DD')
       let dateTo = moment(new Date(auxDate[1], auxDate[0], 1)).format('YYYY-MM-DD')
+      this.currentEvents = []
       API.get('schedule/bookings/?date_gt=' + dateFrom + '&date_lt=' + dateTo,
         {'headers': this.headers})
         .then((response) => {
           this.responseData = response.data
-          let result = response.data.data.map((data) => {
-            let getBookingClient = new Promise((resolve, reject) => {
+          response.data.data.map((data) => {
+            new Promise((resolve, reject) => {
               let iterClients = response.data.included[Symbol.iterator]()
               let current = iterClients.next()
               while (current.value) {
@@ -150,20 +180,21 @@ export default {
                 current = iterClients.next()
               }
             })
-            let event = {
-              date: moment(data.attributes.date).format('YYYY/MM/DD'),
-              title: data.attributes.hour + ':00',
-              desc: getBookingClient._v
-            }
-            return event
+              .then((email) => {
+                this.currentEvents.push(
+                  {
+                    date: moment(data.attributes.date).format('YYYY/MM/DD'),
+                    title: data.attributes.hour + ':00',
+                    desc: email
+                  })
+              })
           })
-          this.responseData = null
-          this.currentEvents = result
         })
         .catch((e) => {
           console.log('error!')
           console.log(e)
         })
+      this.responseData = null
       this.asyncevent = false
     }
   },
@@ -184,8 +215,8 @@ export default {
       {'headers': this.headers})
       .then((response) => {
         this.responseData = response.data
-        let result = response.data.data.map((data) => {
-          let getBookingClient = new Promise((resolve, reject) => {
+        response.data.data.map((data) => {
+          new Promise((resolve, reject) => {
             let iterClients = response.data.included[Symbol.iterator]()
             let current = iterClients.next()
             while (current.value) {
@@ -195,21 +226,22 @@ export default {
               current = iterClients.next()
             }
           })
-          let event = {
-            date: moment(data.attributes.date).format('YYYY/MM/DD'),
-            title: data.attributes.hour + ':00',
-            desc: getBookingClient._v
-          }
-          return event
+            .then((email) => {
+              this.currentEvents.push(
+                {
+                  date: moment(data.attributes.date).format('YYYY/MM/DD'),
+                  title: data.attributes.hour + ':00',
+                  desc: email
+                })
+            })
         })
-        this.responseData = null
-        this.currentEvents = result
-        this.asyncevent = false
       })
       .catch((e) => {
         console.log('error!')
         console.log(e)
       })
+    this.responseData = null
+    this.asyncevent = false
   }
 }
 </script>

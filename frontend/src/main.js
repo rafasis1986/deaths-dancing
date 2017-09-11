@@ -3,6 +3,8 @@
 import Vue from 'vue'
 import VueCookie from 'vue-cookie'
 import vueEventCalendar from 'vue-event-calendar'
+import VueNotifications from 'vue-notifications'
+import miniToastr from 'mini-toastr'
 
 import App from './App'
 import router from './router'
@@ -11,6 +13,26 @@ import store from './store'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'vue-event-calendar/dist/style.css'
 
+const toastTypes = {
+  success: 'success',
+  error: 'error',
+  info: 'info',
+  warn: 'warn'
+}
+miniToastr.init({types: toastTypes})
+
+function toast ({title, message, type, timeout, cb}) {
+  return miniToastr[type](message, title, timeout, cb)
+}
+
+const options = {
+  success: toast,
+  error: toast,
+  info: toast,
+  warn: toast
+}
+
+Vue.use(VueNotifications, options)
 Vue.config.productionTip = false
 Vue.use(VueCookie)
 Vue.use(vueEventCalendar,
