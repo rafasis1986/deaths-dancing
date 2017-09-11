@@ -49,11 +49,7 @@ import Multiselect from 'vue-multiselect'
 const BASE_API_URL = 'http://localhost:8000/v1/'
 const moment = require('moment')
 const API = axios.create({
-  baseURL: BASE_API_URL,
-  headers: {
-    'Authorization': localStorage.getItem('access_token'),
-    'Content-Type': 'application/vnd.api+json'
-  }
+  baseURL: BASE_API_URL
 })
 
 export default {
@@ -67,7 +63,11 @@ export default {
       currentEvents: [],
       seen: false,
       enabled: false,
-      asyncevent: false
+      asyncevent: false,
+      headers: {
+        'Authorization': localStorage.getItem('access_token'),
+        'Content-Type': 'application/vnd.api+json'
+      }
     }
   },
   methods: {
@@ -83,7 +83,9 @@ export default {
             }
           }
         }
-        API.post('schedule/bookings/', body)
+        API.post('schedule/bookings/',
+          body,
+          {'headers': this.headers})
           .then((response) => {
             this.options = []
           })
@@ -112,7 +114,8 @@ export default {
           this.enabled = true
         }
         if (this.enabled) {
-          API.get('avaliable/hours/?date=' + moment(auxDate).format('DD/MM/YYYY'))
+          API.get('avaliable/hours/?date=' + moment(auxDate).format('DD/MM/YYYY'),
+            {'headers': this.headers})
             .then((response) => {
               this.options = response.data.data.availability
             })
@@ -132,7 +135,8 @@ export default {
       let auxDate = data.split('/')
       let dateFrom = moment(new Date(auxDate[1], auxDate[0] - 1, 1)).format('YYYY-MM-DD')
       let dateTo = moment(new Date(auxDate[1], auxDate[0], 1)).format('YYYY-MM-DD')
-      API.get('schedule/bookings/?date_gt=' + dateFrom + '&date_lt=' + dateTo)
+      API.get('schedule/bookings/?date_gt=' + dateFrom + '&date_lt=' + dateTo,
+        {'headers': this.headers})
         .then((response) => {
           this.responseData = response.data
           let result = response.data.data.map((data) => {
@@ -176,7 +180,8 @@ export default {
     let currentMonth = today.getMonth()
     let dateFrom = moment(new Date(currentYear, currentMonth, 1)).format('YYYY-MM-DD')
     let dateTo = moment(new Date(currentYear, currentMonth + 1, 1)).format('YYYY-MM-DD')
-    API.get('schedule/bookings/?date_gt=' + dateFrom + '&date_lt=' + dateTo)
+    API.get('schedule/bookings/?date_gt=' + dateFrom + '&date_lt=' + dateTo,
+      {'headers': this.headers})
       .then((response) => {
         this.responseData = response.data
         let result = response.data.data.map((data) => {
