@@ -18,6 +18,7 @@ class Booking(models.Model):
     class Meta:
         db_table = 'schedule_booking'
         ordering = ['date', 'hour']
+        unique_together = (('date', 'hour'),)
 
     class JSONAPIMeta:
         resource_name = 'booking'

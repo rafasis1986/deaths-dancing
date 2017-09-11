@@ -48,7 +48,7 @@ class HourlyAvaliables(APIView):
         availability_list = []
         if self.request.query_params.get('date'):
             date_param = self.request.query_params.get('date')
-            date = datetime.strptime(date_param, '%Y-%m-%d')
+            date = datetime.strptime(date_param, '%d/%m/%Y')
             busy = Booking.objects.filter(date=date).values_list('hour')
             busy_hours = [x[0] for x in busy]
             for i in range(9, 16):
