@@ -7,4 +7,5 @@ export const API = axios.create({
   headers: {
     Authorization: localStorage.getItem('access_token')
   }
+  resolve(true)
 })

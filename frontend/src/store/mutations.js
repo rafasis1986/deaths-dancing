@@ -17,6 +17,8 @@ export const CLEAR_ALL_DATA = (state) => {
   state.user.email = null
 
   // AUTH_HEADER
-  state.auth_header.token = null
-  state.auth_header.expires_at = null
+  state.auth_header = {
+    token: null,
+    expires_at: null
+  }
 }

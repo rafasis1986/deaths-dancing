@@ -49,12 +49,16 @@
 
 <script>
 import jQuery from 'jquery'
-// import ApiService from '../api/ApiService'
-// import axios from 'axios'
-import { API } from '../api/ApiService'
+import axios from 'axios'
 
-// const api = new ApiService()
+const BASE_API_URL = 'http://localhost:8000/v1/'
 const moment = require('moment')
+const API = axios.create({
+  baseURL: BASE_API_URL,
+  headers: {
+    Authorization: localStorage.getItem('access_token')
+  }
+})
 
 export default {
   name: 'schedule',
@@ -99,25 +103,46 @@ export default {
           this.enabled = false
         }
       }
-      console.log('date-changed', data)
     },
     handleMonthChanged (data) {
+      this.asyncevent = true
       let aux = jQuery('h2.date')[0]
       this.seen = false
       this.enabled = false
       if (aux) {
         aux.innerHTML = 'Month: ' + data
       }
-      console.log('month-changed', data)
       let auxDate = data.split('/')
-      let firstMonthDay = new Date(auxDate[1], auxDate[0] - 1, 1)
-      console.log(firstMonthDay)
-      this.cEvents = [
-        {
-          date: '2017/10/02',
-          title: '10 test',
-          desc: 'description test'
-        }]
+      let dateFrom = moment(new Date(auxDate[1], auxDate[0] - 1, 1)).format('YYYY-MM-DD')
+      let dateTo = moment(new Date(auxDate[1], auxDate[0], 1)).format('YYYY-MM-DD')
+      API.get('schedule/bookings/?date_gt=' + dateFrom + '&date_lt=' + dateTo)
+        .then((response) => {
+          this.responseData = response.data
+          let result = response.data.data.map((data) => {
+            let getBookingClient = new Promise((resolve, reject) => {
+              let iterClients = response.data.included[Symbol.iterator]()
+              let current = iterClients.next()
+              while (current.value) {
+                if (current.value.id === data.relationships.client.data.id) {
+                  resolve(current.value.attributes.email)
+                }
+                current = iterClients.next()
+              }
+            })
+            let event = {
+              date: moment(data.attributes.time).format('YYYY/MM/DD'),
+              title: moment(data.attributes.time).format('h:mm a'),
+              desc: getBookingClient._v
+            }
+            return event
+          })
+          this.cEvents = result
+        })
+        .catch((e) => {
+          console.log('error!')
+          console.log(e)
+        })
+      this.asyncevent = false
     }
   },
   mounted () {
@@ -128,8 +153,14 @@ export default {
     }
   },
   created () {
-    API.get('schedule/bookings/')
+    let today = new Date()
+    let currentYear = today.getFullYear()
+    let currentMonth = today.getMonth()
+    let dateFrom = moment(new Date(currentYear, currentMonth, 1)).format('YYYY-MM-DD')
+    let dateTo = moment(new Date(currentYear, currentMonth + 1, 1)).format('YYYY-MM-DD')
+    API.get('schedule/bookings/?date_gt=' + dateFrom + '&date_lt=' + dateTo)
       .then((response) => {
+        this.responseData = response.data
         let result = response.data.data.map((data) => {
           let getBookingClient = new Promise((resolve, reject) => {
             let iterClients = response.data.included[Symbol.iterator]()
@@ -149,9 +180,10 @@ export default {
           return event
         })
         this.cEvents = result
+        this.asyncevent = false
       })
       .catch((e) => {
-        console.log('error!!!!')
+        console.log('error!')
         console.log(e)
       })
   }

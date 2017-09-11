@@ -1,5 +1,4 @@
 import Vue from 'vue'
-import Router from 'vue-router'
 import Auth0Lock from 'auth0-lock'
 import EventEmitter from 'EventEmitter'
 import { AUTH_CONFIG } from './auth0-variables'
@@ -10,7 +9,6 @@ const USER_INFO_URL = 'http://localhost:8000/v1/base/me/'
 export default class AuthService {
   authenticated = this.isAuthenticated()
   authNotifier = new EventEmitter()
-  router = new Router()
   userProfile;
 
   constructor () {
@@ -80,7 +78,7 @@ export default class AuthService {
     this.userProfile = null
     store.commit('CLEAR_ALL_DATA')
     this.authNotifier.emit('authChange', false)
-    this.router.pop('profile')
+    this.$router.push({ name: 'Home' })
   }
 
   isAuthenticated () {
