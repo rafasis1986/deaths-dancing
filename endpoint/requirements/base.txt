@@ -8,3 +8,4 @@ djangorestframework-jsonapi==2.2.0
 requests==2.18.4
 unholster.milieu==1.0.0
 dj-database-url==0.4.2
+drf-url-filters==0.5.1

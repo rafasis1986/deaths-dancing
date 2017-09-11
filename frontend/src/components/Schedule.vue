@@ -28,7 +28,7 @@
               @month-changed="handleMonthChanged">
                 <div v-if="!seen">
                   <template scope="props">
-                    <div v-for="(event, index) in props.showEvents" class="event-item">
+                    <div v-for="(event, index) in cEvents" class="event-item">
                       {{event}}
                     </div>
                   </template>
@@ -58,7 +58,7 @@ const moment = require('moment')
 
 export default {
   name: 'schedule',
-  props: ['authenticated'],
+  props: ['authenticated', 'showEvents'],
   data () {
     return {
       form: {
@@ -109,6 +109,15 @@ export default {
         aux.innerHTML = 'Month: ' + data
       }
       console.log('month-changed', data)
+      let auxDate = data.split('/')
+      let firstMonthDay = new Date(auxDate[1], auxDate[0] - 1, 1)
+      console.log(firstMonthDay)
+      this.cEvents = [
+        {
+          date: '2017/10/02',
+          title: '10 test',
+          desc: 'description test'
+        }]
     }
   },
   mounted () {
