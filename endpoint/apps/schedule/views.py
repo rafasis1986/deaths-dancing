@@ -6,7 +6,7 @@ from filters.mixins import FiltersMixin
 from apps.schedule.validations import bookings_query_schema
 from rest_framework.views import APIView
 from datetime import datetime
-from rest_framework.settings import api_settings
+from rest_framework.exceptions import NotAcceptable
 
 
 class BookingViewSet(FiltersMixin, viewsets.ModelViewSet):
@@ -28,6 +28,8 @@ class BookingViewSet(FiltersMixin, viewsets.ModelViewSet):
         return queryset.filter(**db_filters)
 
     def create(self, request, *args, **kwargs):
+        if request.user.booking_set.all().count() > 0:
+            raise NotAcceptable('The client has make another booking previously')
         self.serializer_class = BookingCreateSerializer
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
