@@ -1,0 +1,35 @@
+version: '3.2'
+
+services:
+    db:
+        image: mysql:8.0.2
+        env_file: 
+            - compose.env
+        volumes:
+            - ./compose/data/db:/var/lib/mysql
+    django:
+        build:
+            context: .
+            dockerfile: ./compose/production/django/Dockerfile
+        depends_on:
+            - db
+        env_file: 
+            - compose.env
+        volumes:
+            - ./endpoint:/app
+        command: sh /gunicorn.sh
+    vue:
+        build:
+            context: .
+            dockerfile: ./compose/production/vue/Dockerfile
+        volumes:
+            - ./frontend:/webapp
+    nginx:
+        image: nginx:1.13-alpine
+        depends_on:
+            - django
+        volumes:
+            - ./compose/production/nginx/nginx.conf:/etc/nginx/nginx.conf
+            - ./frontend/dist:/webapp
+        ports:
+            - "80:80"

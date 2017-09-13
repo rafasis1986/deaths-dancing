@@ -8,11 +8,13 @@ services:
         volumes:
             - ./compose/data/db:/var/lib/mysql
         ports:
-            -   "3306:3306"
+            - "3306:3306"
     django:
         build:
             context: .
             dockerfile: ./compose/local/django/Dockerfile
+        env_file: 
+            - compose.env
         depends_on:
             - db
         ports:
