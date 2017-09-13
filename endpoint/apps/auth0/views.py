@@ -42,6 +42,7 @@ def auth_callback(request):
         user.last_name = user_info.get('given_name')
         if user.first_name is None:
             user.first_name = user_info.get('name')
+            user.last_name = ''
     user.save()
     payload = jwt.jwt_payload_handler(user)
     token = jwt.jwt_encode_handler(payload)
