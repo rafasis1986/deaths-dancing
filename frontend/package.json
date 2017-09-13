@@ -1,6 +1,6 @@
 {
   "name": "death-vue-client",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Web client to test project, using VueJs",
   "author": "Rafael Torres <rdtr.sis@gmail.com>",
   "private": true,

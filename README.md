@@ -35,7 +35,7 @@ The project consists of two applications  <u>endpoint</u> and <u>frontend</u>.
 
 <u>TODO list: </u>
 
-- To Implement a Logger services like Sentry or Logstash.
+- To Implement a Logger services like Sentry or Logstash. (added in 0.2.0)
 
 - Create a documentation with mocks using ApiBlueprint
 
@@ -52,14 +52,14 @@ The project consists of two applications  <u>endpoint</u> and <u>frontend</u>.
 ## Settings
 
 You need add two files to setting the enviroments in this project one for any application,
-to deploy the <u>FrontEnd</u> you need create the **auth0-variables.js** file into the folder:
+to deploy the <u>FrontEnd</u> you need create the **config.js** file into the folder:
 
 
 ```
-frontend/src/auth
+frontend/src
 ```
 
-You can use the ```auth0-variables.js.example``` that you find in the same path
+You can use the ```config.js.example``` that you find in the same path
 
 Later to set the <u>Endpoint</u> you need create **conf.json** file in ```endpoint``` folder like the other application you can use one file template ```conf.json.example```
 
