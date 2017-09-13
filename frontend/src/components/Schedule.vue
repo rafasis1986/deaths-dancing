@@ -6,19 +6,6 @@
       </div>
       <div v-if="!asyncevent" class="panel-body">
         <div class="row">
-          <!--div v-if='alertSuccess' class="alert alert-success alert-dismissible" role="alert">
-            <button v-on:click="dismissSuccess" type="button">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <strong>Well done! </strong>{{ successMsg }}
-          </div>
-          <div v-if='alertWarning' class="alert alert-warning alert-dismissible" role="alert">
-            <button v-on:click='dismissWarning' type="button" data-dismiss="alert" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <strong>Warning! </strong>{{ warningMsg }}
-          </div>
-          -->
           <div class="col-md-10 col-md-offset-1">
             <div class="form-group col-md-6">  
               <label class="typo__label">Hours list</label>
@@ -61,11 +48,11 @@ import jQuery from 'jquery'
 import axios from 'axios'
 import Multiselect from 'vue-multiselect'
 import VueNotifications from 'vue-notifications'
+import { API_CONFIG } from '../config'
 
-const BASE_API_URL = 'http://localhost:8000/v1/'
 const moment = require('moment')
 const API = axios.create({
-  baseURL: BASE_API_URL
+  baseURL: API_CONFIG.url
 })
 
 export default {
@@ -88,7 +75,6 @@ export default {
   },
   methods: {
     submitBookDate () {
-      console.log(this)
       let aux = jQuery('h2.date')[0]
       if (aux) {
         let body = {
@@ -128,8 +114,10 @@ export default {
         aux.innerHTML = moment(auxDate).format('DD/MM/YYYY')
         if (auxDate < now) {
           this.enabled = false
+          VueNotifications.error({message: 'The day ' + moment(auxDate).format('DD/MM/YYYY') + ' is lower that current day'})
         } else if (auxDate.getDay() === 0 || auxDate.getDay() === 6) {
           this.enabled = false
+          VueNotifications.error({message: 'The day ' + moment(auxDate).format('DD/MM/YYYY') + ' is weekend'})
         } else {
           this.enabled = true
         }
@@ -146,6 +134,7 @@ export default {
                 })
               if (this.options.length === 0) {
                 this.enabled = false
+                VueNotifications.error({message: 'The day ' + moment(auxDate).format('DD/MM/YYYY') + ' is not avaliable'})
               }
             })
         } else {

@@ -1,0 +1,10 @@
+export const AUTH_CONFIG = {
+  clientId: '',
+  domain: '',
+  callbackUrl: '',
+  apiUrl: ''
+}
+
+export const API_CONFIG = {
+  url: ''
+}

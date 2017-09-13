@@ -1,10 +1,10 @@
 import Vue from 'vue'
 import Auth0Lock from 'auth0-lock'
 import EventEmitter from 'EventEmitter'
-import { AUTH_CONFIG } from './auth0-variables'
+import { AUTH_CONFIG, API_CONFIG } from '../config'
 import store from '../store'
 
-const USER_INFO_URL = 'http://localhost:8000/v1/base/me/'
+const USER_INFO_URL = API_CONFIG.url + 'base/me/'
 
 export default class AuthService {
   authenticated = this.isAuthenticated()
