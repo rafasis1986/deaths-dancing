@@ -32,7 +32,7 @@ SECRET_KEY = '*oyw40a%^u*)b1h9i)010qj-0h0b1rd)c&o2ipg18--!6da)*a'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = M.DEBUG
 
-ALLOWED_HOSTS = ['*',]
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
